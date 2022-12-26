@@ -21,7 +21,8 @@ export class BookmarksController {
       treeDataProvider: this.bookmarksProvider, 
       dragAndDropController: this.bookmarksProvider
     });
-    // Register an event when a group is clicked to save the collapsible state
+
+    // Register events when a group is clicked to save the collapsible state
     this.treeView.onDidExpandElement(event => {
       event.element.isExpanded = true;
       this.bookmarks.save();

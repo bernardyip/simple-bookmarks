@@ -44,11 +44,9 @@ export class BookmarksController {
         return;
       }
       // Check if label has already been used
-      for (let bookmark of this.bookmarks.getBookmarksAndGroups()) {
-        if (bookmark.label === newLabel) {
-          vscode.window.showErrorMessage(`Label <${newLabel}> already exists. Use another label!`);
-          return;
-        }
+      if (this.bookmarks.isLabelUsed(newLabel)) {
+        vscode.window.showErrorMessage(`Label <${newLabel}> already exists. Use another label!`);
+        return;
       }
       this.bookmarks.add(new Bookmark(newLabel, undefined, undefined, undefined, undefined));
       vscode.window.showInformationMessage(`Group <${newLabel}> added`);
@@ -72,11 +70,9 @@ export class BookmarksController {
         return;
       }
       // Check if label has already been used
-      for (let bookmark of this.bookmarks.getBookmarksAndGroups()) {
-        if (bookmark.label === newLabel) {
-          vscode.window.showErrorMessage(`Bookmark <${newLabel}> already exists. Use another label!`);
-          return;
-        }
+      if (this.bookmarks.isLabelUsed(newLabel)) {
+        vscode.window.showErrorMessage(`Label <${newLabel}> already exists. Use another label!`);
+        return;
       }
       const filePath = editor.document.fileName;
       const lineNumber = editor.selection.active.line;

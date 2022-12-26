@@ -115,6 +115,16 @@ export class Bookmarks {
     return stringList;
   }
 
+  public isLabelUsed(label: string): boolean {
+    // Check if label has already been used
+    for (let bookmark of this.getBookmarksAndGroups()) {
+      if (bookmark.label === label) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public clear() {
     // Setting length to 0 clears the array
     this.bookmarks.length = 0;

@@ -1,0 +1,135 @@
+{
+  "name": "simple-bookmarks",
+  "displayName": "Simple Bookmarks",
+  "description": "A simple bookmark system with custom sorting features",
+  "version": "0.0.1",
+  "publisher": "bernardyip",
+  "repository": "https://github.com/bernardyip/simple-bookmarks",
+  "engines": {
+    "vscode": "^1.51.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "simple-bookmarks.addBookmark",
+        "title": "Add a bookmark at cursor",
+        "category": "simple-bookmarks"
+      },
+      {
+        "command": "simple-bookmarks.jumpToBookmark",
+        "title": "Jump to a bookmark",
+        "category": "simple-bookmarks"
+      },
+      {
+        "command": "simple-bookmarks.clearAllBookmarks",
+        "title": "Clear all bookmarks",
+        "category": "simple-bookmarks",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "simple-bookmarks.deleteBookmark",
+        "title": "Delete a bookmark",
+        "category": "simple-bookmarks",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "simple-bookmarks.editBookmarkLabel",
+        "title": "Edit bookmark label",
+        "category": "simple-bookmarks",
+        "icon": "$(pencil)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "simple-bookmarks-bar",
+          "title": "Bookmarks",
+          "icon": "$(bookmark)"
+        }
+      ]
+    },
+    "views": {
+      "simple-bookmarks-bar": [
+        {
+          "id": "simple-bookmarks",
+          "name": "Bookmarks",
+          "icon": "$(bookmark)",
+          "contextualTitle": "Bookmarks"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "simple-bookmarks",
+        "contents": "No bookmarks found.\n[Add Bookmark at cursor](command:simple-bookmarks.addBookmark)"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "simple-bookmarks.editBookmarkLabel",
+          "when": "view == simple-bookmarks && viewItem != none",
+          "group": "inline@1"
+        },
+        {
+          "command": "simple-bookmarks.deleteBookmark",
+          "when": "view == simple-bookmarks && viewItem != none",
+          "group": "inline@2"
+        },
+        {
+          "command": "simple-bookmarks.editBookmarkLabel",
+          "when": "view == simple-bookmarks && viewItem != none",
+          "group": "simple-bookmarks-treeitem-menu@1"
+        },
+        {
+          "command": "simple-bookmarks.deleteBookmark",
+          "when": "view == simple-bookmarks && viewItem != none",
+          "group": "simple-bookmarks-treeitem-menu@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "simple-bookmarks.addBookmark",
+          "group": "navigation@1"
+        },
+        {
+          "command": "simple-bookmarks.jumpToBookmark",
+          "group": "navigation@2"
+        }
+      ],
+      "view/title": [
+        {
+            "command": "simple-bookmarks.clearAllBookmarks",
+            "when": "view == simple-bookmarks",
+            "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:export-extension": "vsce package",
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^8.10.25",
+    "@types/vscode": "^1.51.0",
+    "esbuild": "^0.16.10",
+    "tslint": "^5.16.0",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "gyp": "^0.5.0",
+    "vsce": "^2.15.0"
+  }
+}

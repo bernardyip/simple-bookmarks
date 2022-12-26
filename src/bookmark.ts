@@ -109,7 +109,7 @@ export class Bookmarks {
   // Get a string array of the bookmarks stored
   public getBookmarkLists(): string[] {
     let stringList = [];
-    for (let bookmark of this.bookmarks) {
+    for (let bookmark of this.getBookmarks()) {
       stringList.push(bookmark.toString());
     }
     return stringList;

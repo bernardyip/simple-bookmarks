@@ -93,10 +93,16 @@
           "group": "simple-bookmarks-treeitem-menu@1"
         },
         {
+          "command": "simple-bookmarks.addGroup",
+          "when": "view == simple-bookmarks",
+          "group": "simple-bookmarks-treeitem-menu@2"
+        },
+        {
           "command": "simple-bookmarks.deleteBookmark",
           "when": "view == simple-bookmarks && viewItem != none",
-          "group": "simple-bookmarks-treeitem-menu@2"
+          "group": "simple-bookmarks-treeitem-menu@3"
         }
+        
       ],
       "editor/context": [
         {

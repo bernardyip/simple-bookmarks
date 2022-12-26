@@ -2,30 +2,40 @@ import * as vscode from 'vscode';
 import { basename } from 'path';
 
 // Bookmark class to store information about bookmarks
+// Can optionally be a group of bookmarks too
 export class Bookmark {
-  label?: string;
-  filePath: string;
+  label: string;
+  filePath?: string;
   lineNumber: number;
-  text: string;
+  text?: string;
+  group?: string;
+  isExpanded: boolean;
 
-  constructor(label: string | undefined, filePath: string, lineNumber: number, text: string) {
-    if (label === undefined) {
-      this.label = filePath;
-    } else {
-      this.label = label;
-    }
+  constructor(label: string, filePath?: string, lineNumber?: number, text?: string, group?: string, isExpanded?: boolean) {
+    this.label = label;
     this.filePath = filePath;
-    this.lineNumber = lineNumber;
+    this.lineNumber = lineNumber? lineNumber : -1;
     this.text = text;
+    this.group = group;
+    this.isExpanded = isExpanded? isExpanded : false;
   }
 
-  public static fromSavedData(data: any) {
-    return new Bookmark(data.label, data.filePath, data.lineNumber, data.text);
+  // A group will not have a filePath, lineNumber or text
+  public isGroup(): boolean {
+    return this.filePath === undefined || this.lineNumber === undefined || this.text === undefined;
   }
 
   public toString() : string {
-    const fileName = basename(this.filePath);
-    return `${this.label} | ${fileName}:${this.lineNumber + 1}`;
+    if (this.isGroup()) {
+      return this.label;
+    } else {
+      const fileName = basename(this.filePath!);
+      return `${this.label} | ${fileName}:${this.lineNumber! + 1}`;
+    }
+  }
+
+  public static fromSavedData(data: any) {
+    return new Bookmark(data.label, data.filePath, data.lineNumber, data.text, data.group, data.isExpanded);
   }
 }
 
@@ -43,7 +53,34 @@ export class Bookmarks {
 
   public remove(bookmark: Bookmark) {
     const itemIdx = this.bookmarks.indexOf(bookmark);
-    this.bookmarks.splice(itemIdx, 1);
+    if (itemIdx !== -1) {
+      this.bookmarks.splice(itemIdx, 1);
+    }
+  }
+
+  public add(bookmark: Bookmark) {
+    if (bookmark !== undefined) {
+      this.bookmarks.push(bookmark);
+    }
+  }
+
+  public getBookmarksAndGroups() {
+    return this.bookmarks;
+  }
+
+  // Get bookmarks only (excluding groups)
+  public getBookmarks() {
+    return this.bookmarks.filter(cur_bm => {
+      return !cur_bm.isGroup()
+    })
+  }
+
+  public moveBookmarkToBack(target: Bookmark) {
+    // Only worth considering if length is 2, so an order is needed
+    if (target === undefined || this.bookmarks.length <= 1) {
+      return;
+    }
+    this.moveBookmarkBefore(target, this.bookmarks[this.bookmarks.length - 1]);
   }
 
   public moveBookmarkBefore(source: Bookmark, target: Bookmark) {

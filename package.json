@@ -17,8 +17,14 @@
     "commands": [
       {
         "command": "simple-bookmarks.addBookmark",
-        "title": "Add a bookmark at cursor",
+        "title": "Add a bookmark",
         "category": "simple-bookmarks"
+      },
+      {
+        "command": "simple-bookmarks.addGroup",
+        "title": "Add a group",
+        "category": "simple-bookmarks",
+        "icon": "$(new-folder)"
       },
       {
         "command": "simple-bookmarks.jumpToBookmark",
@@ -104,9 +110,14 @@
       ],
       "view/title": [
         {
-            "command": "simple-bookmarks.clearAllBookmarks",
-            "when": "view == simple-bookmarks",
-            "group": "navigation"
+          "command": "simple-bookmarks.addGroup",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@1"
+        },
+        {
+          "command": "simple-bookmarks.clearAllBookmarks",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@2"
         }
       ]
     }

@@ -34,6 +34,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand(
     'simple-bookmarks.editBookmarkLabel', bm => bookmarksController.editBookmarkLabel(bm))
   );
+  context.subscriptions.push(vscode.commands.registerCommand(
+    'simple-bookmarks.addGroup', () => bookmarksController.addGroup())
+  );
 
   // Register the bookmarks tree view so the icon appears
   context.subscriptions.push(bookmarksController.treeView);

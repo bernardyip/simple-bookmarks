@@ -19,7 +19,40 @@ export class BookmarksController {
     // Create treeview for side bar
     this.treeView = vscode.window.createTreeView('simple-bookmarks', { 
       treeDataProvider: this.bookmarksProvider, 
-      dragAndDropController: this.bookmarksProvider 
+      dragAndDropController: this.bookmarksProvider
+    });
+    // Register an event when a group is clicked to save the collapsible state
+    this.treeView.onDidExpandElement(event => {
+      event.element.isExpanded = true;
+      this.bookmarks.save();
+    })
+    this.treeView.onDidCollapseElement(event => {
+      event.element.isExpanded = false;
+      this.bookmarks.save();
+    })
+    this.treeView
+  }
+
+  // This function adds a group to organize bookmarks
+  public addGroup() {
+    vscode.window.showInputBox({
+      placeHolder: 'Enter a group label'
+    }).then(newLabel => {
+      // No labels was input by the user
+      if (newLabel === undefined || newLabel.trim().length <= 0) {
+        return;
+      }
+      // Check if label has already been used
+      for (let bookmark of this.bookmarks.getBookmarksAndGroups()) {
+        if (bookmark.label === newLabel) {
+          vscode.window.showErrorMessage(`Label <${newLabel}> already exists. Use another label!`);
+          return;
+        }
+      }
+      this.bookmarks.add(new Bookmark(newLabel, undefined, undefined, undefined, undefined));
+      vscode.window.showInformationMessage(`Group <${newLabel}> added`);
+      this.bookmarks.save();
+      this.bookmarksProvider.refresh();
     });
   }
 
@@ -38,7 +71,7 @@ export class BookmarksController {
         return;
       }
       // Check if label has already been used
-      for (let bookmark of this.bookmarks.bookmarks) {
+      for (let bookmark of this.bookmarks.getBookmarksAndGroups()) {
         if (bookmark.label === newLabel) {
           vscode.window.showErrorMessage(`Bookmark <${newLabel}> already exists. Use another label!`);
           return;
@@ -47,7 +80,7 @@ export class BookmarksController {
       const filePath = editor.document.fileName;
       const lineNumber = editor.selection.active.line;
       const text = editor.document.lineAt(lineNumber).text;
-      this.bookmarks.bookmarks.push(new Bookmark(newLabel, filePath, lineNumber, text));
+      this.bookmarks.add(new Bookmark(newLabel, filePath, lineNumber, text, undefined));
       vscode.window.showInformationMessage(`Bookmark <${newLabel}> added`);
       this.bookmarks.save();
       this.bookmarksProvider.refresh();
@@ -56,14 +89,17 @@ export class BookmarksController {
 
   // To display the bookmark in vscode's editor
   private goToBookmark(bookmark: Bookmark) {
-    let path = vscode.Uri.file(bookmark.filePath);
-    if (bookmark.filePath.startsWith("Untitled")) {
+    if (bookmark.isGroup()) {
+      return;
+    }
+    let path = vscode.Uri.file(bookmark.filePath!);
+    if (bookmark.filePath!.startsWith("Untitled")) {
       path = vscode.Uri.parse("untitled:" + bookmark.filePath);
     }
     vscode.window.showTextDocument(path, { preview: false, preserveFocus: false }).then(
       textEditor => {
         try {
-          let range = new vscode.Range(bookmark.lineNumber, 0, bookmark.lineNumber, 0);
+          let range = new vscode.Range(bookmark!.lineNumber, 0, bookmark.lineNumber, 0);
           textEditor.selection = new vscode.Selection(range.start, range.start);
           textEditor.revealRange(range);
         } catch (e) {
@@ -86,7 +122,7 @@ export class BookmarksController {
     vscode.window.showQuickPick(this.bookmarks.getBookmarkLists()).then((value) => {
       // Look for the index of the selection
       let selectedBookmark:Bookmark | undefined = undefined;
-      for (let cur_bm of this.bookmarks.bookmarks) {
+      for (let cur_bm of this.bookmarks.getBookmarks()) {
         if (cur_bm.toString() === value) {
           selectedBookmark = cur_bm;
           break;
@@ -117,6 +153,14 @@ export class BookmarksController {
     if (bookmark === undefined) {
       this.bookmarks.clear();
     } else {
+      // If bookmark is a group, we delete all bookmarks under it
+      if (bookmark.isGroup()) {
+        this.bookmarks.getBookmarks().forEach(cur_bm => {
+          if (cur_bm.group === bookmark.label) {
+            this.bookmarks.remove(cur_bm);
+          }
+        })
+      }
       this.bookmarks.remove(bookmark);
     }
 
@@ -133,12 +177,25 @@ export class BookmarksController {
     vscode.window.showInputBox({
       placeHolder: 'Enter a new bookmark label'
     }).then(newLabel => {
+      // No labels was input by the user
+      if (newLabel === undefined || newLabel.trim().length <= 0) {
+        return;
+      }
       // Check if label has already been used
-      for (let cur_bm of this.bookmarks.bookmarks) {
+      for (let cur_bm of this.bookmarks.getBookmarksAndGroups()) {
         if (cur_bm.label === newLabel) {
           vscode.window.showErrorMessage(`Bookmark <${newLabel}> already exists. Use another label!`);
           return;
         }
+      }
+
+      // If bookmark is a group, we need to update bookmarks under that group
+      if (bookmark.isGroup()) {
+        this.bookmarks.getBookmarks().forEach(cur_bm => {
+          if (cur_bm.group === bookmark.label) {
+            cur_bm.group = newLabel;
+          }
+        })
       }
 
       bookmark.label = newLabel;
@@ -152,9 +209,9 @@ export class BookmarksController {
     const filePath = event.document.fileName;
     const changes = event.contentChanges;
     // Loop through each bookmark
-    this.bookmarks.bookmarks.forEach(bookmark => {
-      if (bookmark.filePath !== filePath) {
-        // Different files, skip
+    this.bookmarks.getBookmarks().forEach(bookmark => {
+      if (bookmark.filePath !== filePath || bookmark.isGroup()) {
+        // Different file or bookmark is a group, skip
         return;
       }
 
@@ -212,7 +269,7 @@ export class BookmarksController {
           let isFirstLineBookmarkDeletable = firstLinePrefix.trim() === "";
 
           if (!isFirstLineBookmarkDeletable) {
-            let firstLineBookmark = this.bookmarks.bookmarks.find(bookmark => bookmark.lineNumber === oldFirstLine);
+            let firstLineBookmark = this.bookmarks.getBookmarks().find(bookmark => bookmark.lineNumber === oldFirstLine);
             if (typeof firstLineBookmark === "undefined") {
               isFirstLineBookmarkDeletable = true;
             }
@@ -254,10 +311,10 @@ export class BookmarksController {
         let oldFsPath = rename.oldUri.fsPath;
         let newFsPath = rename.newUri.fsPath;
         
-        for (let bookmark of this.bookmarks.bookmarks) {
-          if ((stat.type & vscode.FileType.Directory) > 0 && bookmark.filePath.startsWith(oldFsPath)) {
+        for (let bookmark of this.bookmarks.getBookmarks()) {
+          if ((stat.type & vscode.FileType.Directory) > 0 && bookmark.filePath!.startsWith(oldFsPath)) {
             // Handle bookmarks that are affected by directory renames
-            bookmark.filePath = newFsPath + bookmark.filePath.substring(oldFsPath.length);
+            bookmark.filePath = newFsPath + bookmark.filePath!.substring(oldFsPath.length);
           } else if (bookmark.filePath === oldFsPath) {
             // Handle file renames
             bookmark.filePath = newFsPath;
@@ -277,9 +334,9 @@ export class BookmarksController {
       let bookmarksDeleted = false;
 
       // Delete bookmark if the file is deleted
-      for (let bookmark of this.bookmarks.bookmarks) {
+      for (let bookmark of this.bookmarks.getBookmarks()) {
         // Could be the actual bookmark itself, or a directory was deleted
-        if (bookmark.filePath.startsWith(deletedFsPath)) {
+        if (bookmark.filePath!.startsWith(deletedFsPath)) {
           this.bookmarks.remove(bookmark);
           bookmarksDeleted = true;
         }

@@ -13,3 +13,4 @@ webpack.config.js
 **/*.ts
 **/*.vsix
 **/*.md
+!LICENSE.md

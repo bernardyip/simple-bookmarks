@@ -98,8 +98,9 @@ export class Bookmarks {
   }
 
   public moveBookmarksBefore(source_list: Bookmark[], target: Bookmark) {
-    for (let cur_bm of source_list) {
-      this.moveBookmarkToBack(cur_bm);
+    // We reverse because we want to maintain the order if possible
+    for (let cur_bm of source_list.reverse()) {
+      this.moveBookmarkBefore(cur_bm, target);
     }
   }
 
@@ -111,14 +112,20 @@ export class Bookmarks {
     const targetIdx = this.bookmarks.indexOf(target);
     const sourceIdx = this.bookmarks.indexOf(source);
 
-    if (targetIdx === -1 || sourceIdx === -1) {
+    // Ignore if any element not found or the target and source is the same element
+    if (targetIdx === -1 || sourceIdx === -1 || targetIdx === sourceIdx) {
       return;
     }
 
     // Removes the source element
     this.bookmarks.splice(sourceIdx, 1)[0];
     // Add back source element before target element
-    this.bookmarks.splice(targetIdx + 1, 0, source);
+    if (targetIdx < sourceIdx) {
+      this.bookmarks.splice(targetIdx + 1, 0, source);
+    } else {
+      // We do not need to add 1 if position of target does not change when source is removed
+      this.bookmarks.splice(targetIdx, 0, source);
+    }
   }
 
   public isInBookmarkList(bookmark: Bookmark) {

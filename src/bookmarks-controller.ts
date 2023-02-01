@@ -31,7 +31,6 @@ export class BookmarksController {
       event.element.isExpanded = false;
       this.bookmarks.save();
     })
-    this.treeView
   }
 
   // This function adds a group to organize bookmarks

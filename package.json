@@ -92,27 +92,27 @@
       "view/item/context": [
         {
           "command": "simple-bookmarks.editBookmarkLabel",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "inline@1"
         },
         {
           "command": "simple-bookmarks.deleteBookmark",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "inline@2"
         },
         {
           "command": "simple-bookmarks.editBookmarkLabel",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "simple-bookmarks-treeitem-menu@1"
         },
         {
           "command": "simple-bookmarks.addGroup",
-          "when": "view == simple-bookmarks",
+          "when": "view == simple-bookmarks && !listMultiSelection",
           "group": "simple-bookmarks-treeitem-menu@2"
         },
         {
           "command": "simple-bookmarks.deleteBookmark",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "simple-bookmarks-treeitem-menu@3"
         }
         

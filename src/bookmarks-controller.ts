@@ -172,7 +172,8 @@ export class BookmarksController {
       return;
     }
     vscode.window.showInputBox({
-      placeHolder: 'Enter a new bookmark label'
+      placeHolder: 'Enter a new bookmark label',
+      value: bookmark.label
     }).then(newLabel => {
       // No labels was input by the user
       if (newLabel === undefined || newLabel.trim().length <= 0) {

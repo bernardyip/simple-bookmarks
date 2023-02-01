@@ -98,7 +98,12 @@ export class BookmarksProvider implements vscode.TreeDataProvider<Bookmark>, vsc
       }
     } else {
       // For all other cases, we can assign the target's group to the source's group
-      source.map((item: Bookmark) => item.group = target.group);
+      source.map((item: Bookmark) => {
+        // Prevent circular reference
+        if (!this.bookmarks.getParentList(target).includes(item) && item.label !== target.label) {
+          item.group = target.group;
+        }
+      });
     }
 
     this.bookmarks.moveBookmarksBefore(source, target);

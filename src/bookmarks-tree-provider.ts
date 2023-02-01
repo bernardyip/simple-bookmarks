@@ -63,31 +63,45 @@ export class BookmarksProvider implements vscode.TreeDataProvider<Bookmark>, vsc
   // Handle drop event of drag&drop
   public async handleDrop(target: Bookmark | undefined, sources: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
     const transferItem = sources.get('application/vnd.code.tree.simple-bookmarks');
-    const source = transferItem?.value[0];
+    const source: Bookmark[] = transferItem?.value;
 
     if (target === undefined && source !== undefined) {
       // User is dragging in-group item to outside window
-      source.group = undefined;
-      this.bookmarks.moveBookmarkToBack(source);
+      source.map((item: Bookmark) => item.group = undefined);
+      this.bookmarks.moveBookmarksToBack(source);
       this.bookmarks.save();
       this.refresh();
       return;
     }
 
+    // No source nor targets
     if (target === undefined || source === undefined) {
       return;
     }
 
-    // If the target is a group, then we put the bookmark into the group
-    // We assume if the source is a group, then we intend to re-order the folders
-    if (target.isGroup() && !source.isGroup()) {
-      source.group = target.label;
-    } else {
-      // For all other cases, we can assign the target's group to the source's group
-      source.group = target.group;
+    // Do not let a source move into target or a child of the target
+    // Doing this creates a circular reference, where a parent is a child of his own child
+    if (target.isGroup()) {
+      let result: Bookmark[] = source.filter((value) => {
+        return this.bookmarks.getParentList(target).includes(value) || value.label === target.label
+      });
+      if (result.length >= 1) {
+        return;
+      }
     }
 
-    this.bookmarks.moveBookmarkBefore(source, target);
+    // If the target is a group, then we put the bookmark into the group
+    // We assume if the source is a group, then we intend to re-order the folders
+    if (target.isGroup()) {
+      for (let cur_bm of source) {
+        cur_bm.group = target.label;
+      }
+    } else {
+      // For all other cases, we can assign the target's group to the source's group
+      source.map((item: Bookmark) => item.group = target.group);
+    }
+
+    this.bookmarks.moveBookmarksBefore(source, target);
     this.bookmarks.save();
     this.refresh();
 	}

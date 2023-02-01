@@ -19,7 +19,8 @@ export class BookmarksController {
     // Create treeview for side bar
     this.treeView = vscode.window.createTreeView('simple-bookmarks', { 
       treeDataProvider: this.bookmarksProvider, 
-      dragAndDropController: this.bookmarksProvider
+      dragAndDropController: this.bookmarksProvider,
+      canSelectMany: true
     });
 
     // Register events when a group is clicked to save the collapsible state
@@ -151,7 +152,7 @@ export class BookmarksController {
         .showInformationMessage("Are you sure you want to clear ALL bookmarks?", "Yes", "No")
         .then(answer => {
           if (answer === "Yes") {
-      this.bookmarks.clear();
+            this.bookmarks.clear();
             this.bookmarks.save();
             this.bookmarksProvider.refresh();
           }

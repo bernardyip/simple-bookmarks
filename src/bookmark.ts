@@ -51,6 +51,14 @@ export class Bookmarks {
     this.context = context;
   }
 
+  public getBookmarkByLabel(label: string | undefined) {
+    if (label === undefined) {
+      return null;
+    }
+    // Labels are unique, so there should only be 1 bookmark
+    return this.bookmarks.filter((value) => value.label === label)[0];
+  }
+
   public remove(bookmark: Bookmark) {
     const itemIdx = this.bookmarks.indexOf(bookmark);
     if (itemIdx !== -1) {
@@ -75,12 +83,24 @@ export class Bookmarks {
     })
   }
 
-  public moveBookmarkToBack(target: Bookmark) {
+  public moveBookmarksToBack(source_list: Bookmark[]) {
+    for (let bookmark of source_list) {
+      this.moveBookmarkToBack(bookmark);
+    }
+  }
+
+  public moveBookmarkToBack(source: Bookmark) {
     // Only worth considering if length is 2, so an order is needed
-    if (target === undefined || this.bookmarks.length <= 1) {
+    if (source === undefined || this.bookmarks.length <= 1) {
       return;
     }
-    this.moveBookmarkBefore(target, this.bookmarks[this.bookmarks.length - 1]);
+    this.moveBookmarkBefore(source, this.bookmarks[this.bookmarks.length - 1]);
+  }
+
+  public moveBookmarksBefore(source_list: Bookmark[], target: Bookmark) {
+    for (let cur_bm of source_list) {
+      this.moveBookmarkToBack(cur_bm);
+    }
   }
 
   public moveBookmarkBefore(source: Bookmark, target: Bookmark) {
@@ -123,6 +143,22 @@ export class Bookmarks {
       }
     }
     return false;
+  }
+
+  public getParentList(bookmark: Bookmark): Bookmark[] {
+    let parent_list: Bookmark[] = [];
+    let cur_bm: Bookmark = bookmark;
+    while (cur_bm !== undefined) {
+      let parent: Bookmark | null = this.getBookmarkByLabel(cur_bm.group);
+      // Second condition might indicate an infinite loop
+      if (parent !== null && !parent_list.includes(parent)) {
+        parent_list.push(parent);
+        cur_bm = parent;
+      } else {
+        break;
+      }
+    }
+    return parent_list;
   }
 
   public clear() {

@@ -2,7 +2,7 @@
   "name": "simple-bookmarks",
   "displayName": "Simple Bookmarks",
   "description": "A simple bookmark system with custom sorting features",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "bernardyip",
   "repository": "https://github.com/bernardyip/simple-bookmarks",
   "engines": {

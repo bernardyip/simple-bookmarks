@@ -6,12 +6,24 @@
   "publisher": "bernardyip",
   "repository": "https://github.com/bernardyip/simple-bookmarks",
   "engines": {
-    "vscode": "^1.51.0"
+    "vscode": "^1.73.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "keywords": [
+    "bookmark",
+    "custom",
+    "sort",
+    "simple",
+    "mark",
+    "selection",
+    "jump"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:simple-bookmarks"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { posix } from 'path';
 import { Bookmark, Bookmarks } from "./bookmark";
 import { BookmarksProvider } from "./bookmarks-tree-provider";
 
@@ -207,6 +208,50 @@ export class BookmarksController {
       bookmark.label = newLabel;
       this.bookmarks.save();
       this.bookmarksProvider.refresh();
+    });
+  }
+
+  public importBookmarks() {
+    if (!vscode.workspace.workspaceFolders) {
+			return vscode.window.showInformationMessage('No folder or workspace opened');
+		}
+    
+    const folderUri = vscode.workspace.workspaceFolders[0].uri;
+		const defaultFileUri = folderUri.with({ path: posix.join(folderUri.path, 'simple-bookmarks.json') });
+    let loadConfig: vscode.OpenDialogOptions = {
+      title: "Import to simple-bookmarks", 
+      openLabel: 'Import',
+      defaultUri: defaultFileUri,
+      canSelectMany: false,
+    };
+    vscode.window.showOpenDialog(loadConfig).then(fileUri => {
+      if (fileUri === undefined || !fileUri[0]) {
+        return;
+      }
+      this.bookmarks.loadFromFile(fileUri[0]).then(() => {
+        this.bookmarks.save();
+        this.bookmarksProvider.refresh();
+      });
+    });
+  }
+
+  public exportBookmarks() {
+    if (!vscode.workspace.workspaceFolders) {
+			return vscode.window.showInformationMessage('No folder or workspace opened');
+		}
+
+    const folderUri = vscode.workspace.workspaceFolders[0].uri;
+		const defaultFileUri = folderUri.with({ path: posix.join(folderUri.path, 'simple-bookmarks.json') });
+    let saveConfig = {
+      title: "Export simple-bookmarks to...", 
+      saveLabel: "Export",
+      defaultUri: defaultFileUri
+    };
+    vscode.window.showSaveDialog(saveConfig).then(fileUri => {
+      if (fileUri === undefined) {
+        return;
+      }
+      this.bookmarks.saveToFile(fileUri);
     });
   }
 

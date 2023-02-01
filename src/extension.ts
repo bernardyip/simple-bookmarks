@@ -26,6 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('simple-bookmarks.deleteBookmark', bm => bookmarksController.removeBookmark(bm)), 
     vscode.commands.registerCommand('simple-bookmarks.editBookmarkLabel', bm => bookmarksController.editBookmarkLabel(bm)), 
     vscode.commands.registerCommand('simple-bookmarks.addGroup', () => bookmarksController.addGroup()),
+    vscode.commands.registerCommand('simple-bookmarks.exportBookmarks', () => bookmarksController.exportBookmarks()),
+    vscode.commands.registerCommand('simple-bookmarks.importBookmarks', () => bookmarksController.importBookmarks()),
   );
 
   // Register the bookmarks tree view so the icon appears

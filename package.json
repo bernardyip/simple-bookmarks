@@ -61,6 +61,18 @@
         "title": "Edit bookmark label",
         "category": "simple-bookmarks",
         "icon": "$(pencil)"
+      },
+      {
+        "command": "simple-bookmarks.exportBookmarks",
+        "title": "Export simple-bookmarks to file",
+        "category": "simple-bookmarks",
+        "icon": "$(export)"
+      },
+      {
+        "command": "simple-bookmarks.importBookmarks",
+        "title": "Import simple-bookmarks from file",
+        "category": "simple-bookmarks",
+        "icon": "$(desktop-download)"
       }
     ],
     "viewsContainers": {

@@ -177,12 +177,26 @@ export class Bookmarks {
     this.context.workspaceState.update(Bookmarks.savedBookmarksKey, this.bookmarks);
   }
 
+  public saveToFile(path: vscode.Uri) {
+		vscode.workspace.fs.writeFile(path, Buffer.from(JSON.stringify(this.bookmarks), "utf-8"));
+  }
+
   public load() {
     let loadedBookmarks: any = this.context.workspaceState.get(Bookmarks.savedBookmarksKey)
     if (loadedBookmarks === undefined || loadedBookmarks === null) {
       return;
     }
+    this.clear();
     for (let loadedBookmark of loadedBookmarks) {
+      this.bookmarks.push(Bookmark.fromSavedData(loadedBookmark));
+    }
+  }
+
+  public async loadFromFile(path: vscode.Uri) {
+    const data = await vscode.workspace.fs.readFile(path);
+    let bookmarks = JSON.parse(Buffer.from(data).toString('utf8'));
+    this.clear();
+    for (let loadedBookmark of bookmarks) {
       this.bookmarks.push(Bookmark.fromSavedData(loadedBookmark));
     }
   }

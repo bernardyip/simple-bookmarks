@@ -30,7 +30,8 @@
       {
         "command": "simple-bookmarks.addBookmark",
         "title": "Add a bookmark",
-        "category": "simple-bookmarks"
+        "category": "simple-bookmarks",
+        "icon": "$(add)"
       },
       {
         "command": "simple-bookmarks.addGroup",
@@ -128,14 +129,19 @@
       ],
       "view/title": [
         {
-          "command": "simple-bookmarks.addGroup",
+          "command": "simple-bookmarks.addBookmark",
           "when": "view == simple-bookmarks",
           "group": "navigation@1"
         },
         {
-          "command": "simple-bookmarks.clearAllBookmarks",
+          "command": "simple-bookmarks.addGroup",
           "when": "view == simple-bookmarks",
           "group": "navigation@2"
+        },
+        {
+          "command": "simple-bookmarks.clearAllBookmarks",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@3"
         }
       ]
     }

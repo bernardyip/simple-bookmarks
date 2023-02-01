@@ -148,7 +148,15 @@ export class BookmarksController {
   // Remove a bookmark from the list
   public removeBookmark(bookmark: Bookmark) {
     if (bookmark === undefined) {
+      vscode.window
+        .showInformationMessage("Are you sure you want to clear ALL bookmarks?", "Yes", "No")
+        .then(answer => {
+          if (answer === "Yes") {
       this.bookmarks.clear();
+            this.bookmarks.save();
+            this.bookmarksProvider.refresh();
+          }
+        });
     } else {
       // If bookmark is a group, we delete all bookmarks under it
       if (bookmark.isGroup()) {

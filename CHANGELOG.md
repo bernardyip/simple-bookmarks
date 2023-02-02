@@ -1,4 +1,9 @@
 # Here are the main changes for each version
+[0.0.5]
+
+
+[0.0.4]
+- Mostly documentation updates
 
 [0.0.3]
 - Add original label value when editing a bookmark label

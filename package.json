@@ -5,6 +5,7 @@
   "version": "0.0.3",
   "publisher": "bernardyip",
   "repository": "https://github.com/bernardyip/simple-bookmarks",
+  "icon": "https://github.com/bernardyip/simple-bookmarks/raw/master/icon.png",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -80,7 +81,7 @@
         {
           "id": "simple-bookmarks-bar",
           "title": "Bookmarks",
-          "icon": "$(bookmark)"
+          "icon": "./icon.png"
         }
       ]
     },
@@ -89,7 +90,7 @@
         {
           "id": "simple-bookmarks",
           "name": "Bookmarks",
-          "icon": "$(bookmark)",
+          "icon": "./icon.png",
           "contextualTitle": "Bookmarks"
         }
       ]

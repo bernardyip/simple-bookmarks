@@ -2,23 +2,42 @@
   "name": "simple-bookmarks",
   "displayName": "Simple Bookmarks",
   "description": "A simple bookmark system with custom sorting features",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "bernardyip",
   "repository": "https://github.com/bernardyip/simple-bookmarks",
   "engines": {
-    "vscode": "^1.51.0"
+    "vscode": "^1.73.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "keywords": [
+    "bookmark",
+    "custom",
+    "sort",
+    "simple",
+    "mark",
+    "selection",
+    "jump"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:simple-bookmarks"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "simple-bookmarks.addBookmark",
-        "title": "Add a bookmark at cursor",
-        "category": "simple-bookmarks"
+        "title": "Add a bookmark",
+        "category": "simple-bookmarks",
+        "icon": "$(add)"
+      },
+      {
+        "command": "simple-bookmarks.addGroup",
+        "title": "Add a group",
+        "category": "simple-bookmarks",
+        "icon": "$(new-folder)"
       },
       {
         "command": "simple-bookmarks.jumpToBookmark",
@@ -42,6 +61,18 @@
         "title": "Edit bookmark label",
         "category": "simple-bookmarks",
         "icon": "$(pencil)"
+      },
+      {
+        "command": "simple-bookmarks.exportBookmarks",
+        "title": "Export simple-bookmarks to file",
+        "category": "simple-bookmarks",
+        "icon": "$(export)"
+      },
+      {
+        "command": "simple-bookmarks.importBookmarks",
+        "title": "Import simple-bookmarks from file",
+        "category": "simple-bookmarks",
+        "icon": "$(desktop-download)"
       }
     ],
     "viewsContainers": {
@@ -73,24 +104,30 @@
       "view/item/context": [
         {
           "command": "simple-bookmarks.editBookmarkLabel",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "inline@1"
         },
         {
           "command": "simple-bookmarks.deleteBookmark",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "inline@2"
         },
         {
           "command": "simple-bookmarks.editBookmarkLabel",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
           "group": "simple-bookmarks-treeitem-menu@1"
         },
         {
-          "command": "simple-bookmarks.deleteBookmark",
-          "when": "view == simple-bookmarks && viewItem != none",
+          "command": "simple-bookmarks.addGroup",
+          "when": "view == simple-bookmarks && !listMultiSelection",
           "group": "simple-bookmarks-treeitem-menu@2"
+        },
+        {
+          "command": "simple-bookmarks.deleteBookmark",
+          "when": "view == simple-bookmarks && viewItem != none && !listMultiSelection",
+          "group": "simple-bookmarks-treeitem-menu@3"
         }
+        
       ],
       "editor/context": [
         {
@@ -104,9 +141,19 @@
       ],
       "view/title": [
         {
-            "command": "simple-bookmarks.clearAllBookmarks",
-            "when": "view == simple-bookmarks",
-            "group": "navigation"
+          "command": "simple-bookmarks.addBookmark",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@1"
+        },
+        {
+          "command": "simple-bookmarks.addGroup",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@2"
+        },
+        {
+          "command": "simple-bookmarks.clearAllBookmarks",
+          "when": "view == simple-bookmarks",
+          "group": "navigation@3"
         }
       ]
     }

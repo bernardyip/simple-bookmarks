@@ -24,36 +24,89 @@ export class BookmarksProvider implements vscode.TreeDataProvider<Bookmark>, vsc
 
   getChildren(element?: Bookmark): Bookmark[] {
     if (element === undefined) {
-      return this.bookmarks.bookmarks;
+      // Get all bookmarks & groups that don't belong to any group
+      return this.bookmarks.bookmarks.filter(cur_bm => {
+        return cur_bm.group === undefined
+      });
+    } else if (element.isGroup()) {
+      // Get all children that belongs in the group
+      return this.bookmarks.bookmarks.filter(cur_bm =>{
+        return cur_bm.group === element.label;
+      })
     }
 
+    // I guess we should not reach here, but for completion sake
     return [];
   }
 
   // To convert to a treeview item
   toTreeItem(bookmark: Bookmark): vscode.TreeItem {
     const treeItem = new vscode.TreeItem(bookmark.toString());
-    treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None;
-    treeItem.tooltip = vscode.workspace.asRelativePath(bookmark.filePath);
-    treeItem.iconPath = new vscode.ThemeIcon('bookmark'),
-    treeItem.command = {
-      command: 'simple-bookmarks.jumpToBookmark',
-      title: 'Jump to bookmark',
-      arguments: [bookmark]
-    };
+    if (bookmark.isGroup()) {
+      treeItem.collapsibleState = bookmark.isExpanded? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed;
+      treeItem.tooltip = vscode.workspace.asRelativePath(bookmark.label);
+      treeItem.iconPath = new vscode.ThemeIcon('folder')
+      
+    } else {
+      treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None;
+      treeItem.tooltip = vscode.workspace.asRelativePath(bookmark.filePath!);
+      treeItem.iconPath = new vscode.ThemeIcon('bookmark')
+      treeItem.command = {
+        command: 'simple-bookmarks.jumpToBookmark',
+        title: 'Jump to bookmark',
+        arguments: [bookmark]
+      };
+    }
     return treeItem;
   }
 
   // Handle drop event of drag&drop
   public async handleDrop(target: Bookmark | undefined, sources: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
     const transferItem = sources.get('application/vnd.code.tree.simple-bookmarks');
-    const source = transferItem?.value[0];
+    const source: Bookmark[] = transferItem?.value;
 
+    if (target === undefined && source !== undefined) {
+      // User is dragging in-group item to outside window
+      source.map((item: Bookmark) => item.group = undefined);
+      this.bookmarks.moveBookmarksToBack(source);
+      this.bookmarks.save();
+      this.refresh();
+      return;
+    }
+
+    // No source nor targets
     if (target === undefined || source === undefined) {
       return;
     }
 
-    this.bookmarks.moveBookmarkBefore(source, target);
+    // Do not let a source move into target or a child of the target
+    // Doing this creates a circular reference, where a parent is a child of his own child
+    if (target.isGroup()) {
+      let result: Bookmark[] = source.filter((value) => {
+        return this.bookmarks.getParentList(target).includes(value) || value.label === target.label
+      });
+      if (result.length >= 1) {
+        return;
+      }
+    }
+
+    // If the target is a group, then we put the bookmark into the group
+    // We assume if the source is a group, then we intend to re-order the folders
+    if (target.isGroup()) {
+      for (let cur_bm of source) {
+        cur_bm.group = target.label;
+      }
+    } else {
+      // For all other cases, we can assign the target's group to the source's group
+      source.map((item: Bookmark) => {
+        // Prevent circular reference
+        if (!this.bookmarks.getParentList(target).includes(item) && item.label !== target.label) {
+          item.group = target.group;
+        }
+      });
+    }
+
+    this.bookmarks.moveBookmarksBefore(source, target);
     this.bookmarks.save();
     this.refresh();
 	}

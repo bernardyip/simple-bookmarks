@@ -18,21 +18,16 @@ export function activate(context: vscode.ExtensionContext) {
     (fileDeleteEvent) => bookmarksController.updateBookmarksOnFileDeleted(fileDeleteEvent)
   );
 
-  // Register the "Add bookmark" command
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'simple-bookmarks.addBookmark', () => bookmarksController.addBookmark())
-  );
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'simple-bookmarks.jumpToBookmark', bm => bookmarksController.jumpToBookmark(bm))
-  );
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'simple-bookmarks.clearAllBookmarks', bm => bookmarksController.removeBookmark(bm))
-  );
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'simple-bookmarks.deleteBookmark', bm => bookmarksController.removeBookmark(bm))
-  );
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'simple-bookmarks.editBookmarkLabel', bm => bookmarksController.editBookmarkLabel(bm))
+  // Register commands
+  context.subscriptions.push(
+    vscode.commands.registerCommand('simple-bookmarks.addBookmark', () => bookmarksController.addBookmark()),
+    vscode.commands.registerCommand('simple-bookmarks.jumpToBookmark', bm => bookmarksController.jumpToBookmark(bm)), 
+    vscode.commands.registerCommand('simple-bookmarks.clearAllBookmarks', bm => bookmarksController.removeBookmark(bm)), 
+    vscode.commands.registerCommand('simple-bookmarks.deleteBookmark', bm => bookmarksController.removeBookmark(bm)), 
+    vscode.commands.registerCommand('simple-bookmarks.editBookmarkLabel', bm => bookmarksController.editBookmarkLabel(bm)), 
+    vscode.commands.registerCommand('simple-bookmarks.addGroup', () => bookmarksController.addGroup()),
+    vscode.commands.registerCommand('simple-bookmarks.exportBookmarks', () => bookmarksController.exportBookmarks()),
+    vscode.commands.registerCommand('simple-bookmarks.importBookmarks', () => bookmarksController.importBookmarks()),
   );
 
   // Register the bookmarks tree view so the icon appears
